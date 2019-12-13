@@ -1,5 +1,6 @@
 package hellodb
 
+import java.lang.StringBuilder
 import java.math.BigDecimal
 import java.util.*
 import javax.persistence.*
@@ -17,7 +18,7 @@ class PlanetEntity {
   var name: String? = null
   var distance: BigDecimal? = null
   @OneToMany(mappedBy = "planet")
-  var flights: List<FlightEntity>? = null
+  var flights: MutableList<FlightEntity>? = null
 }
 
 /**
@@ -65,6 +66,33 @@ class FlightsHandler {
 |</tr>""".trimMargin()
         }.joinToString(separator = "\n")
     return "$FLIGHTS_HEADER $tablebody $FLIGHTS_FOOTER"
+  }
+
+  fun handleFlightsCorrected(flightDate: Date?): String {
+    val result = StringBuilder()
+    withConnection(true) { connection ->
+      if (flightDate == null) {
+        connection.prepareStatement("SELECT F.id, F.date, P.name AS planet_name, P.id AS planet_id FROM Flight F JOIN Planet P ON F.planet_id = P.id")
+      } else {
+        connection.prepareStatement("SELECT F.id, F.date, P.name AS planet_name, P.id AS planet_id FROM Flight F JOIN Planet P ON F.planet_id = P.id WHERE F.date=?").also { stmt ->
+          stmt.setDate(1, java.sql.Date(flightDate.time))
+        }
+      }.use { prepared ->
+        prepared.executeQuery().use { resultSet ->
+          while (resultSet.next()) {
+            result.append("""
+|<tr>
+|   <td>${resultSet.getInt("id")}</td>
+|   <td>${resultSet.getDate("date")}</td>
+|   <td>${resultSet.getString("planet_name")}</td>
+|   <td>${resultSet.getInt("planet_id")}</td>
+|</tr>
+            """.trimMargin()).append("\n")
+          }
+        }
+      }
+    }
+    return "$FLIGHTS_HEADER $result $FLIGHTS_FOOTER"
   }
 
   /**

@@ -35,7 +35,7 @@ class App {
       val flightDate: Date? = req.queryParams("flight_date")?.let {
         SimpleDateFormat("yyyy-MM-dd").parse(it)
       }
-      handler.handleFlights(flightDate)
+      handler.handleFlightsCorrected(flightDate)
     }
 
     get("/delay_flights") { req, res ->
@@ -67,7 +67,7 @@ class RakesCli : CliktCommand() {
   private val pgHost: String by option("--pg-host").default("localhost")
   private val pgPort: Int by option("--pg-port").int().default(5432)
   private val pgDatabase: String by option("--pg-database").default("postgres")
-  private val pgPassword: String by option("--pg-password").default("")
+  private val pgPassword: String by option("--pg-password").default("postgres")
 
   override fun run() {
     initDb(host = pgHost, port = pgPort, database = pgDatabase, user = pgUser, password = pgPassword)
