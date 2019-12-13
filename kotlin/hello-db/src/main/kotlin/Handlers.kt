@@ -1,6 +1,5 @@
 package hellodb
 
-import java.lang.StringBuilder
 import java.math.BigDecimal
 import java.util.*
 import javax.persistence.*
@@ -72,10 +71,15 @@ class FlightsHandler {
         val result = StringBuilder()
         withConnection(true) { connection ->
             if (flightDate == null) {
-                connection.prepareStatement("SELECT F.id, F.date, P.name AS planet_name, P.id AS planet_id FROM Flight F JOIN Planet P ON F.planet_id = P.id")
+                connection.prepareStatement("""SELECT F.id, F.date, P.name AS planet_name, P.id AS planet_id 
+                                                  FROM Flight F 
+                                                  JOIN Planet P ON F.planet_id = P.id""")
             } else {
-                connection.prepareStatement("SELECT F.id, F.date, P.name AS planet_name, P.id AS planet_id FROM Flight F JOIN Planet P ON F.planet_id = P.id WHERE F.date=?").also { stmt ->
-                    stmt.setDate(1, java.sql.Date(flightDate.time))
+                connection.prepareStatement("""SELECT F.id, F.date, P.name AS planet_name, P.id AS planet_id 
+                                                  FROM Flight F 
+                                                  JOIN Planet P ON F.planet_id = P.id 
+                                                  WHERE F.date=?""").also { statement ->
+                    statement.setDate(1, java.sql.Date(flightDate.time))
                 }
             }.use { prepared ->
                 prepared.executeQuery().use { resultSet ->
@@ -119,8 +123,8 @@ class FlightsHandler {
     fun handleDelayFlightsCorrected(flightDate: Date, interval: String): String {
         var updateCount = 0
         withConnection(true) {
-            val statement = it.prepareStatement("UPDATE Flight SET date=date + interval '$interval' WHERE date=?").also { stmt ->
-                stmt.setDate(1, java.sql.Date(flightDate.time))
+            val statement = it.prepareStatement("UPDATE Flight SET date=date + interval '$interval' WHERE date=?").also { statement ->
+                statement.setDate(1, java.sql.Date(flightDate.time))
             }
             updateCount += statement.executeUpdate()
         }
@@ -144,8 +148,8 @@ class FlightsHandler {
 
     fun handleDeletePlanetCorrected(planetId: Int): String {
         val deleteCount = withConnection(true) {
-            it.prepareStatement("DELETE FROM Planet WHERE id=?").also { stmt ->
-                stmt.setInt(1, planetId)
+            it.prepareStatement("DELETE FROM Planet WHERE id=?").also { statement ->
+                statement.setInt(1, planetId)
             }.executeUpdate()
         }
         return "Deleted $deleteCount planets"
