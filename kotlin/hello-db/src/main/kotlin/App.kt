@@ -46,7 +46,7 @@ class App {
       if (flightDate == null || interval == null) {
         "Please specify flight_date and interval arguments, like this: /delay_flights?flight_date=2084-06-12&interval=1week"
       } else {
-        handler.handleDelayFlights(flightDate, interval)
+        handler.handleDelayFlightsCorrected(flightDate, interval)
       }
     }
 

@@ -116,6 +116,17 @@ class FlightsHandler {
     return "Updated $updateCount flights"
   }
 
+    fun handleDelayFlightsCorrected(flightDate: Date, interval: String) : String {
+        var updateCount = 0
+        withConnection(true) {
+            val statement = it.prepareStatement("UPDATE Flight SET date=date + interval '$interval' WHERE date=?").also { stmt ->
+                stmt.setDate(1, java.sql.Date(flightDate.time))
+            }
+            updateCount += statement.executeUpdate()
+        }
+        return "Updated $updateCount flights"
+    }
+
   /**
    * Удаляет планету с указанным идентификатором.
    * Пример: /delete_planet?planet_id=1
