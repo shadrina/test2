@@ -134,7 +134,7 @@ class FlightsHandler {
    * Возвращает строку с количеством удаленных записей
    */
   fun handleDeletePlanet(planetId: Int) : String {
-    val deleteCount = withConnection(false) {
+    val deleteCount = withConnection(true) {
       it.prepareStatement("DELETE FROM Planet WHERE id=?").also { stmt ->
         stmt.setInt(1, planetId)
       }.executeUpdate()
