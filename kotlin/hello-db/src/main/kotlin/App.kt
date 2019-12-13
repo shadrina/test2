@@ -55,7 +55,7 @@ class App {
       if (planetId == null) {
         "Please specify planet_id, like this: /delete_planet?planet_id=1"
       } else {
-        handler.handleDeletePlanet(planetId)
+        handler.handleDeletePlanetCorrected(planetId)
       }
     }
   }
